@@ -12,7 +12,8 @@ jobs:
     steps:
 
     - run: |
-        brew install mlton
+        brew install smlnj mlton
+        echo "/usr/local/smlnj/bin" >> "${GITHUB_PATH}"
 
     - uses: actions/checkout@v4
 
