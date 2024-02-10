@@ -1,0 +1,22 @@
+Fin = Rec X. Rec Y. 1 + X*Y
+
+FLeaf() : Fin
+FTree(T: Fin, L: List(Fin)) : Fin
+
+FNil: List(Fin)
+FCons(HD: Fin, TL: List(Fin)): List(Fin)
+
+count: Fin -> N
+
+add = [x][y]case x of
+        { O z => y
+        | S x' => S(add x' y) };
+
+count = [t]case t of
+        { FLeaf z  => S(O())
+        | FTree t' => add (count t'.T) (c_aux t'.L)},
+c_aux = [l]case l of
+        { FNil z  => O()
+        | FCons p => add (count p.HD) (c_aux p.TL) };
+
+count (FTree(T=FLeaf(), L=FCons(HD=FTree(T=FLeaf(),L=FNil()), TL=FNil())));

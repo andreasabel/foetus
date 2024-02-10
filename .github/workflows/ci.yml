@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:         { branches: [ master ] }
+  pull_request: { branches: [ master ] }
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: MacOS build and test
+    runs-on: macos-latest
+    steps:
+
+    - run: |
+        brew install mlton
+
+    - uses: actions/checkout@v4
+
+    - name: Build with MLton
+      run: |
+        make -C src
+
+    - name: Test with MLton
+      run: |
+        ls -al bin/
+        make test

@@ -1,0 +1,102 @@
+(*
+** foetus.grm
+**
+** by Andreas Abel, Thorsten Altenkirch
+** Copyright 1998 Ludwigs-Maximilians-Universit"at M"unchen
+**
+** grammar for foetus language
+*)
+
+%%
+
+%name Foetus
+
+%pos int
+
+%term LBRA | RBRA | LPAR | RPAR | LCUR | RCUR | BAR | EQUALS | DARR 
+    | COMMA | DOT | COLON | SEMICOLON | TO
+    | LET | IN | CASE | OF | SET | TYPE 
+    | ID of string | CONST of string 
+    | STRING of string 
+    | C_NF | C_NF' | C_HNF | C_HNF' | C_EQ | C_EQ' | C_CXT | C_ENV 
+    | C_INCLUDE 
+    | EOF
+
+%nonterm TOP
+       | START
+       | TERM of Tm
+       | RTERM of Tm
+       | IDS of string list
+       | DEF of string*Tm
+       | DEFS of Defs
+       | PATS of (Pat list)
+       | PAT of Pat
+       | RDEFS of (string*Tm) list
+       | RDEF of string*Tm
+
+%start START
+%nonassoc COLON
+%right TO 
+%eop EOF SEMICOLON
+%noshift EOF SEMICOLON
+%verbose
+%%
+
+START : TOP		( )
+
+TOP  : TERM 		((!do_term) TERM)
+     | DEFS             ((!do_defs) DEFS)
+     |                  ()
+
+TERM : RTERM
+		(RTERM)
+     | TERM RTERM
+		(t_app (TERM,RTERM))
+
+RTERM : LPAR TERM RPAR
+		(TERM)
+     | ID
+		(t_var ID)
+     | LBRA ID RBRA TERM
+		(t_lam (ID,TERM))
+     | CONST TERM
+		(t_c (CONST,TERM))
+     | CASE TERM OF LCUR PATS RCUR
+		(t_case (TERM,PATS))
+     | LPAR RDEFS RPAR
+		(t_tup RDEFS)
+     | RTERM DOT CONST
+		(t_dot (RTERM,CONST))
+     | LET DEFS IN TERM
+		(t_let (DEFS,TERM))
+
+DEF :  ID EQUALS TERM
+		(ID,TERM)
+
+DEFS : DEF
+		([DEF])
+      | DEF COMMA DEFS
+		(DEF::DEFS)
+
+PAT   : CONST ID DARR TERM 
+		(CONST,(ID,TERM))
+
+PATS  : PAT
+		([PAT])
+      | PAT BAR PATS
+		(PAT::PATS)
+      |
+		([])
+
+
+RDEF :  CONST EQUALS TERM
+		(CONST,TERM)
+
+RDEFS : RDEF
+		([RDEF])
+      | RDEF COMMA RDEFS
+		(RDEF::RDEFS)
+      | 
+		([])
+
+

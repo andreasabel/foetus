@@ -1,0 +1,22 @@
+add = [x][y]case x of { O z => y | S x' => S(add x' y) };
+h = [x][y](add x y),
+
+h = [x][y]case x of
+        { O z  => case y of
+                { O z  => O()
+                | S y' => h x y' }
+        | S x' => h x' y },
+
+f = [x][y]case x of
+        { O z  => O()
+        | S x' => case y of
+                { O z  => O()
+                | S y' => h (g x' y) (f (S(S(x))) y') } },
+
+g = [x][y]case x of
+        { O z  => O()
+        | S x' => case y of
+                { O z  => O()
+                | S y' => h (f x y) (g x' (S(y))) } };
+
+(* f (S(S(O()))) (S(S(O()))); *)

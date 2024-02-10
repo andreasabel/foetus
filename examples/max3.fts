@@ -1,0 +1,13 @@
+max3 = [x][y][z] case x of
+  { O o => case y of
+    { O o  => z
+    | S y'  => case z of
+      { O o  => S(y')
+      | S z'  => S(max3 (O()) y' z')}}
+  | S x'  => case y of
+    { O o => case z of
+      { O o => x
+      | S z'  => S(max3 x' (O()) z')}
+    | S y'  => case z of
+      { O o => S(max3 x' y' z)
+      | S z'  => S(max3 x' y' z')}}}

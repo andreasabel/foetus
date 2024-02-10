@@ -1,0 +1,172 @@
+add = [x][y]case x of
+        { O z => y
+        | S x' => S(add x' y) },
+mult = [x][y]case x of
+        { O z => O z
+        | S x' => (add y (mult x' y)) },
+eins = S(O()),
+zwei = add eins eins,
+drei = add eins zwei,
+vier = S(drei);
+
+add = [x][y]case x of
+        { O z => y
+        | S x' => case x' of
+                { O z => S(add x' y)
+                | S x'' => S(add x'' S(y)) }};
+
+
+p = [x]case x of { O z => O z | S x' => x' },
+sub = [x][y]case x of
+        { O z => y
+        | S x' => sub x' (p y) },
+gcd = [x][y]let d = (sub x y) in
+        case d of
+                { O z => let d' = (sub y x) in
+                        case d' of
+                                { O z => x
+                                | S dd' => case y of
+                                        { O z => x
+                                        | S y' => (gcd d' y) } }
+                | S dd => case x of
+                        { O z => y
+                        | S x' => (gcd d x) }};
+
+add = [x][y]let
+        add' = [u][v]S(add u v)
+        in case x of
+                { O z => y
+                | S x' => add' x' y };
+
+ifO = [x][then][else]case x of
+        { O z => then
+        | S x' => else x' };
+add = [x][y]ifO x y ([x']S(add x' y));
+
+f = [x][y][z]case z of
+        { O o  => case x of
+                { O o  => y
+                | S x' => h x' y z }
+        | S z' => g x y z'},
+g = [x][y][z]case z of
+        { O o  => case y of
+                { O o  => x
+                | S y' => h x y' z }
+        | S z' => h x y z'},
+h = [x][y][z]f x y z;
+
+add = [x][y]let id = [x]x in
+        case x of
+        { O z => y
+        | S x' => let y'=y in S(add (id x') y') };
+
+
+(* Zum Problem der Vervollst"andigung *)
+
+g = [y]case y of
+        { O z  => O()
+        | S y' => f y' y'},
+f = [x][y]case x of
+        { O z  => g y
+        | S x' => f x' S(y) };
+
+
+g = [y][z]case y of
+        { O o  => h z
+        | S y' => g y' S(z)},
+f = [x][y][z]case x of
+        { O o  => g y z
+        | S x' => f x' (S(y)) z},
+h = [z]case z of
+        { O o  => O()
+        | S z' => f z' z' z'};
+(* g -> g           : < ?
+** g -> h -> f -> g : ? <     g fails term. check
+** f -> f           : < ? =
+** f -> g -> h -> f : ? ? <   f passes term. check by 2 0
+** h -> f -> g -> h : <       h passes term. check by 0
+*)
+
+f = [x][y][z]case z of
+        { O o  => case y of
+                { O o  => O()
+                | S y' => f x y' (S(S(z))) }
+        | S z' => case x of
+                { O o  => f x y z'
+                | S x' => f x' (S(y)) (S(z)) }};
+
+(* terminiert: *)
+f = [b][x][y]case b of
+        { O o  => case y of
+                { O o  => O()
+                | S y' => g b x y' }
+        | S b' => case x of
+                { O o  => O()
+                | S x' => g b x' y }},
+g = [b][x][y]case b of
+        { O o  => f b x y
+        | S b' => g b' (S(x)) y};
+
+f = [b][x][y]case b of
+        { O o  => case y of
+                { O o  => O()
+                | S y' => g b x y' }
+        | S b' => case x of
+                { O o  => O()
+                | S x' => g b x' y }},
+g = [b][x][y]case b of
+        { O o  => f b x y
+        | S b' => case y of
+                { O o  => f b x y
+                | S y' => g b (S(x)) y' }};
+
+h = [x][y]O(),
+g = [x][y]case x of
+        { O o => h x y
+        | S x' => g x y };
+
+h = [x]O(),
+g = [x]case x of
+        { O o => h x
+        | S x' => g x };
+
+id = [x]x;
+add = [x][y]case x of
+        { O o => y
+        | S x' => S(add x' y)};
+mult' = [x][y][z]
+        (case x of
+                { O o => id
+                | S x' => [z'](mult' x' y (add y z')) })
+        z;
+mult = [x][y]mult' x y (O());
+
+(* mult zwei eins
+** -> ([z']mult' eins eins (add eins z')) null
+** -> mult' eins eins (add eins z'){z' = null}
+** -> ([z'']mult' null eins (add eins z'')) (add eins z'){z' = null}
+** -> mult' null eins (add eins z''){z'' = (add eins z'){z' = null}}
+** -> id (add eins z''){z'' = (add eins z'){z' := null}}
+** -> (add eins z''){z'' = (add eins z'){z' := null}}
+** -> add eins (add eins z'){z' := null}
+** -> ...
+** -> zwei
+*)
+
+add = [x][z]
+        (case x of
+                { O o => id
+                | S x' => [z'](add x' (S(z'))) })
+        z;
+
+
+add = [x]case x of
+        { O o  => [y]y
+        | S x' => [y]add x' (S(y)) };
+
+id = [x]x,
+f  = [x]g x,
+g  = [x](case x of
+                { O o => id
+                | S x' => [y](f x')})
+        x;

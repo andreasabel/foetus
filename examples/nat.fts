@@ -1,0 +1,119 @@
+add = [x][y]case x of
+        { O z => y
+        | S x' => S(add x' y) };
+
+eins = S(O());
+zwei = add eins eins;
+drei = add eins zwei;
+vier = S(drei);
+
+mult = [x][y]case x of
+        { O z => O z
+        | S x' => (add y (mult x' y)) };
+mult zwei drei;
+
+p = [x]case x of { O z => O z | S x' => x' };
+p drei;
+
+(* y -. x *)
+sub = [x][y]case x of
+        { O z => y
+        | S x' => sub x' (p y) };
+sub zwei vier;
+
+tup = (C1=add, C2=mult);
+
+
+gcd = [x][y]let d = (sub x y) in
+        case d of
+                { O z => let d' = (sub y x) in
+                        case d' of
+                                { O z => x
+                                | S dd' => case y of
+                                        { O z => x
+                                        | S y' => (gcd d' y) } }
+                | S dd => case x of
+                        { O z => y
+                        | S x' => (gcd d x) }};
+
+(* y / x *)
+div = [x][y]let
+        div' = [y']case y' of
+                { O z => O z
+                | S dummy => S(div' (sub x y')) }
+        in
+        (div' (sub (p x) y));
+(*
+divmod = [x][y]let
+        div' = [tup]let
+                        r  = tup.Rem,
+                        d  = tup.Div  in let
+                        y' = sub x r
+                in case y' of
+                        { O z => (Div=d, Rem=(p r))
+                        | S z => div' (Div=(S d), Rem=y') }
+        in div' (Div=O(), Rem=S(y));
+*)
+divmod = [x][y]let
+        div' = [d][r]let
+                        y' = sub x r
+                in case y' of
+                        { O z => (Div=d, Rem=(p r))
+                        | S z => div' (S d) y' }
+        in div' (O()) (S y);
+
+qsum = [base][x]case x of
+        { O z => O()
+        | S z => let dm = (divmod base x) in
+                add (dm.Rem) (qsum base (dm.Div)) };
+
+binqsum = qsum (S(S(O())));
+
+rsum = [x]case x of
+        { O z => O()
+        | S x' => add x (rsum x') };
+
+rsum2 = [x]let
+        rsum2' = [n][m]case m of
+                { O z => case n of
+                        { O z => O()
+                        | S n' => S(rsum2' n' n') }
+                | S m' => S(rsum2' n m')}
+        in rsum2' x (O());
+
+(* Ackermann-Funktion:
+        ack O y = S(y)
+        ack SO y = SS(y)
+        ack SSO y = SSS(add y y)
+        ack SSSO y = ?
+*)
+ack = [x][y]case x of
+        { O z  => S(y)
+        | S x' => ack x' (case y of
+                { O z  => S(O())
+                | S y' => ack x y'} ) };
+
+min = [x][y]case x of
+        { O z  => O()
+        | S x' => case y of
+                { O z => 0()
+                | S y' => S(min x' y') }};
+
+max = [x][y]case x of
+        { O z  => y
+        | S x' => case y of
+                { O z => x
+                | S y' => S(max x' y') }};
+
+add = [xy]case xy.X of
+        { O z => xy.Y
+        | S x' => S(add (X=x', Y=xy.Y)) };
+
+add = [x][y]case x of { O z => y | S x' => S(add x' y) };
+
+fib' = [n][fn][fn']case n of
+        { O z  => fn
+        | S n' => fib' n' (add fn fn') fn};
+fib = [n]fib' n (S(O())) (O());
+
+(fib (S(S(S(S(S(O())))))));

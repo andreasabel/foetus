@@ -1,0 +1,21 @@
+(* Package definition for use with MLton. *)
+
+$(SML_LIB)/basis/basis.mlb
+$(SML_LIB)/basis/unsafe.mlb
+$(SML_LIB)/smlnj-lib/Util/smlnj-lib.mlb
+$(SML_LIB)/mlyacc-lib/mlyacc-lib.mlb
+
+(* These are not modules, just sml files that have to be loaded in order: *)
+aux.sml
+closure.sml
+foetus.sml
+matrix.sml
+analyse.sml
+check.sml
+parser-hooks.sml
+foetus.grm.sig
+foetus.grm.sml
+foetus.lex.sml
+parser-main.sml
+top.sml
+main.sml

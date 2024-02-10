@@ -1,0 +1,130 @@
+flatten = [listlist]case listlist of
+        { Nil z => Nil()
+        | Cons p => let
+                list = p.HD,
+                lls = p.TL in
+                case list of
+                        { Nil z => flatten lls
+                        | Cons p' => let
+                                x = p'.HD,
+                                xs = p'.TL in
+                                Cons(HD=x, TL=(flatten Cons(HD=xs, TL=lls)))}};
+
+nil = Nil();
+cons = [hd][tl]Cons(HD=hd,TL=tl);
+
+(*
+l1 = cons (A()) (cons (B()) (cons (C()) nil));
+flatten (cons l1 nil);
+flatten (cons l1 (cons l1 nil));
+*)
+
+flatten = [listlist]case listlist of
+        { Nil z => nil
+        | Cons p => let
+                list = p.HD,
+                lls = p.TL in
+                case list of
+                        { Nil z => flatten lls
+                        | Cons p' => let
+                                x = p'.HD,
+                                xs = p'.TL in
+                                cons x (flatten (cons xs lls)) }};
+
+(* no help variables: *)
+flatten = [listlist]case listlist of
+        { Nil z => Nil()
+        | Cons p => case p.HD of
+                { Nil z => flatten p.TL
+                | Cons p' => Cons(HD=p'.HD, TL=flatten (Cons(HD=p'.TL, TL=p.TL))) }};
+
+flattree = [tree]case tree of
+        { Nil z => nil
+        | Cons pair1 => let
+                left = pair1.HD,
+                right= pair1.TL in
+                case left of
+                        { Nil z => cons nil (flattree right)
+                        | Cons pair2 => flattree (cons pair2.HD
+                                                 (cons pair2.TL right)) }};
+(*
+tree1 = cons nil (cons (cons nil nil) nil);
+flattree tree1;
+*)
+
+flattree = [tree]case tree of
+        { Nil z => nil
+        | Cons pair1 => case pair1.HD of
+                        { Nil z => Cons (HD=nil, TL=(flattree pair1.TL))
+                        | Cons pair2 => flattree Cons(HD=pair2.HD,
+                                TL=Cons(HD=pair2.TL, TL=pair1.TL)) }};
+
+map = [f][list]let
+        map' = [l]case l of
+                { Nil z => Nil()
+                | Cons pair => Cons (HD=(f pair.HD), TL=(map' pair.TL))}
+        in map' list;
+
+foldl = [f][e][list]let
+        foldl' = [e][l]case l of
+                { Nil z => e
+                | Cons p => foldl' (f p.HD e) p.TL }
+        in foldl' e list;
+
+rev = [list]foldl cons nil list;
+
+f = [l]case l of
+        { Nil z => Nil()
+        | Cons p => g p.HD p.TL },
+g = [l][ls]case l of
+        { Nil z => f ls
+        | Cons p => Cons(HD=p.HD, TL=(g p.TL ls)) };
+
+merge = [le][l1][l2]case l1 of
+        { Nil z => l2
+        | Cons p1 => case l2 of
+                { Nil z => l1
+                | Cons p2 => case (le p1.HD p2.HD) of
+                        { True  z => Cons(HD=p1.HD, TL=merge le p1.TL l2)
+                        | False z => Cons(HD=p2.HD, TL=merge le l1 p2.TL) }}};
+
+le_nat = [x][y]case x of
+        { O z  => True()
+        | S x' => case y of
+                { O z  => False()
+                | S y' => le_nat x' y' }};
+
+i = S(O());
+ii = S(S(O()));
+iii = S(S(S(O())));
+iv = S(S(S(S(O()))));
+v = S(S(S(S(S(O())))));
+l1 = Cons(HD=O(), TL=Cons(HD=iii, TL=Cons(HD=iv, TL=Nil())));
+l2 = Cons(HD=i,   TL=Cons(HD=ii,  TL=Cons(HD=v,  TL=Nil())));
+merge le_nat l1 l2;
+
+
+(* zip
+**
+** an example for parameter permutation
+** FAILS termination check
+*)
+
+zip = [l1][l2]case l1 of
+        { Nil z => l2
+        | Cons p1 => Cons(HD=p1.HD, TL=zip l2 p1.TL) };
+
+zip (Cons(HD=A(), TL=Cons(HD=C(), TL=Nil())))
+    (Cons(HD=B(), TL=Cons(HD=D(), TL=Nil())));
+
+(* zip with a `copy' zip' *)
+
+zip = [l1][l2]case l1 of
+        { Nil z => l2
+        | Cons p1 => Cons(HD=p1.HD, TL=zip' l2 p1.TL) },
+zip'= [l1][l2]case l1 of
+        { Nil z => l2
+        | Cons p1 => Cons(HD=p1.HD, TL=zip l2 p1.TL) };
+
+zip (Cons(HD=A(), TL=Cons(HD=C(), TL=Nil())))
+    (Cons(HD=B(), TL=Cons(HD=D(), TL=Nil())));

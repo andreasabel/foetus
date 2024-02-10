@@ -1,0 +1,8 @@
+add = [x][y]case x of
+        { O o => y
+        | S x' => S(add x' y)
+        | Lim f => Lim([z]add (f z) y) };
+mult = [x][y]case x of
+        { O o => O()
+        | S x' => add (mult x' y) y
+        | Lim f => Lim([z]mult (f z) y) };

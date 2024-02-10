@@ -1,0 +1,6 @@
+.cm/
+/bin/
+/src/foetus.grm.desc
+/src/foetus.grm.sig
+/src/foetus.grm.sml
+/src/foetus.lex.sml
